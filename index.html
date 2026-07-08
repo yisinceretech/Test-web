@@ -2,17 +2,16 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TDA38806 Buck Converter Study</title>
 
 <style>
-
 body{
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Microsoft JhengHei", Arial, sans-serif;
     background:#f4f6f8;
     margin:0;
-    padding:30px;
+    padding:20px;
+    line-height:1.8;
 }
 
 .container{
@@ -22,14 +21,19 @@ body{
 
 h1{
     color:#005BAC;
+    text-align:center;
     border-bottom:4px solid #005BAC;
     padding-bottom:10px;
 }
 
 h2{
-    background:#EAF2FF;
+    background:#EAF3FF;
     padding:10px;
     border-left:5px solid #005BAC;
+}
+
+h3{
+    color:#005BAC;
 }
 
 .card{
@@ -37,29 +41,20 @@ h2{
     padding:20px;
     margin-top:20px;
     border-radius:10px;
-    box-shadow:0 3px 8px rgba(0,0,0,0.1);
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
 img{
     width:100%;
-    border:1px solid #ddd;
-    border-radius:5px;
+    border:1px solid #ccc;
+    border-radius:8px;
 }
 
 pre{
-    background:#f5f5f5;
+    background:#f8f8f8;
+    border-left:4px solid #005BAC;
     padding:15px;
-    border-radius:5px;
     overflow:auto;
-}
-
-a{
-    color:#005BAC;
-    text-decoration:none;
-}
-
-a:hover{
-    text-decoration:underline;
 }
 
 table{
@@ -76,6 +71,22 @@ th{
     background:#f0f0f0;
 }
 
+a{
+    color:#005BAC;
+    font-weight:bold;
+}
+
+.highlight{
+    background:#fff8dc;
+    border-left:5px solid orange;
+    padding:10px;
+}
+
+@media(max-width:768px){
+    body{
+        padding:10px;
+    }
+}
 </style>
 </head>
 
@@ -83,42 +94,37 @@ th{
 
 <div class="container">
 
-<h1>
-Buck Converter Study Note - Infineon TDA38806
-</h1>
+<h1>Buck Converter 工作原理與 TDA38806 面試筆記</h1>
 
 <div class="card">
 <h2>參考資料</h2>
 
 <ul>
-
 <li>
-TDA38806 Datasheet
-<br>
-<a href="https://www.infineon.com/assets/row/public/documents/24/49/infineon-tda38806-datasheet-en.pdf"
-target="_blank">
+Datasheet：
+<a href="https://www.infineon.com/assets/row/public/documents/24/49/infineon-tda38806-datasheet-en.pdf" target="_blank">
 Infineon TDA38806 Datasheet
 </a>
 </li>
 
-<br>
-
 <li>
-Buck Converter 教學影片
-<br>
-://www.youtube.com/watch?v=vwJYIorz_Aw"
-target="_blank">
-CH2NFU電力電子學實習 - YouTube
+YouTube：
+=vwJYIorz_Aw" target="_blank">
+CH2NFU 電力電子學實習
 </a>
 </li>
-
 </ul>
 
 </div>
 
 <div class="card">
+<h2>Buck Converter 基本原理</h2>
 
-<h2>Buck Converter 基本公式</h2>
+<p>
+Buck Converter 是降壓型 DC/DC Converter，
+利用 MOSFET 高頻切換以及 LC 濾波，
+將高電壓轉換成低電壓。
+</p>
 
 <pre>
 Vout = D × Vin
@@ -126,60 +132,145 @@ Vout = D × Vin
 D = Vout / Vin
 </pre>
 
-例如:
+<h3>推導</h3>
 
 <pre>
-Vin = 12V
-Vout = 3.3V
+MOS ON
 
-D = 3.3 / 12
-  = 0.275
-  = 27.5%
+VL = Vin - Vout
+
+MOS OFF
+
+VL = -Vout
+
+Volt-Second Balance
+
+(Vin-Vout) × D
+=
+Vout × (1-D)
+
+整理後：
+
+Vout = D × Vin
 </pre>
 
 </div>
 
 <div class="card">
+<h2>Duty Cycle 範例</h2>
 
-<h2>電感 Ripple Current</h2>
+<pre>
+Vin = 12V
+Vout = 3.3V
+
+D = Vout / Vin
+
+D = 3.3 / 12
+
+D = 0.275
+
+Duty = 27.5%
+</pre>
+</div>
+
+<div class="card">
+<h2>電感 Ripple Current 計算</h2>
 
 <pre>
 ΔIL
 
 =
 (Vin − Vout) × D
----------------------
+--------------------
 L × Fsw
+</pre>
+
+<h3>範例</h3>
+
+<pre>
+Vin = 12V
+Vout = 1.8V
+L = 1uH
+Fsw = 600kHz
+
+D = 0.15
+
+ΔIL
+
+=
+(12-1.8)×0.15
+--------------
+1uH×600k
+
+≈ 2.55A
+</pre>
+
+<pre>
+Peak Current
+
+Ipk
+=
+Iout + ΔIL/2
+
+Valley Current
+
+Ivalley
+=
+Iout - ΔIL/2
 </pre>
 
 </div>
 
 <div class="card">
+<h2>Output Voltage Ripple</h2>
 
-<h2>Output Ripple Voltage</h2>
+<h3>ESR Ripple</h3>
+
+<pre>
+ΔVESR
+
+=
+ΔIL × ESR
+</pre>
+
+<h3>Capacitor Ripple</h3>
+
+<pre>
+ΔVC
+
+=
+ΔIL
+----------------
+8×Fsw×Cout
+</pre>
+
+<h3>Total Ripple</h3>
 
 <pre>
 ΔVout
 
-≈ ΔIL × ESR
-
-+
-
-ΔIL
------------------
-8 × Fsw × Cout
+≈ ΔVESR + ΔVC
 </pre>
 
 </div>
 
 <div class="card">
-
 <h2>Bootstrap (CBST) 工作原理</h2>
 
+<div class="highlight">
+CBST 最容易在面試被問到
+</div>
+
+<h3>啟動前</h3>
+
 <pre>
+CBST = 0V
+High Side無法導通
+</pre>
 
-Low Side ON：
+<h3>Low Side ON</h3>
 
+<pre>
 VCC
  |
 >| Bootstrap Diode
@@ -188,17 +279,35 @@ CBST
  |
 SW = 0V
 
-CBST充電至約5V
+CBST開始充電
+</pre>
 
---------------------------------
+<h3>Steady State</h3>
 
-Steady State：
-
+<pre>
 VBST = 17V
 SW   = 12V
 
-VBST - SW ≈ 5V
+VBST - SW = 5V
+</pre>
 
+<h3>波形概念</h3>
+
+<pre>
+VBST
+
+17V ─────┐      ┌──────
+         │      │
+         │      │
+         └──────┘
+
+SW
+
+12V ─────┐      ┌──────
+         │      │
+0V ──────┘──────┘
+
+VBST-SW ≈ 5V
 </pre>
 
 </div>
@@ -207,13 +316,9 @@ VBST - SW ≈ 5V
 
 <h2>TDA38806 Typical Application Diagram</h2>
 
-<img srct="TDA38806 Typical Application Diagram">
+ical.png" alt="TDA38806 Typical Application Diagram">
 
-<p>
-
-Figure 3 Typical Application Circuit
-
-</p>
+<br><br>
 
 <table>
 
@@ -229,7 +334,7 @@ Figure 3 Typical Application Circuit
 
 <tr>
 <td>BST</td>
-<td>Bootstrap Driver Supply</td>
+<td>Bootstrap Supply</td>
 </tr>
 
 <tr>
@@ -244,17 +349,22 @@ Figure 3 Typical Application Circuit
 
 <tr>
 <td>MODE</td>
-<td>Switching Frequency Selection</td>
+<td>模式與頻率設定</td>
 </tr>
 
 <tr>
 <td>CS</td>
-<td>OCP Current Limit Setting</td>
+<td>OCP設定</td>
 </tr>
 
 <tr>
 <td>SS/REF</td>
 <td>Soft Start</td>
+</tr>
+
+<tr>
+<td>PGOOD</td>
+<td>Power Good訊號</td>
 </tr>
 
 </table>
@@ -265,15 +375,9 @@ Figure 3 Typical Application Circuit
 
 <h2>TDA38806 1.8V Reference Design</h2>
 
-06_vout18.png"
-alt="TDA38806 1.8V Design">
-
-<h3>Reference Design Parameters</h3>
-
-<table>
-
+<img src="tda38806_vout18.png" alt="TDA
 <tr>
-<th>項目</th>
+<th>元件</th>
 <th>數值</th>
 </tr>
 
@@ -323,62 +427,216 @@ alt="TDA38806 1.8V Design">
 
 <div class="card">
 
-<h2>面試常見問題</h2>
-
-<h3>Q1. Buck Converter 為什麼能降壓?</h3>
+<h2>RFB1 計算</h2>
 
 <pre>
-Vout = D × Vin
-利用Duty Cycle控制平均輸出電壓
-</pre>
-
-<h3>Q2. 電感電流怎麼算?</h3>
-
-<pre>
-Ipk = Iout + ΔIL/2
-
-Ivalley = Iout − ΔIL/2
-</pre>
-
-<h3>Q3. 輸出Ripple怎麼算?</h3>
-
-<pre>
-ΔVout
-
-≈ ΔIL × ESR
-
-+
-
-ΔIL
----------------
-8×Fsw×Cout
-</pre>
-
-<h3>Q4. 什麼是COT ?</h3>
-
-<pre>
-Constant On Time
-
-固定導通時間控制
-Fast Transient Response
-</pre>
-
-<h3>Q5. Vout由1.8V改成1.2V怎麼改?</h3>
-
-<pre>
-
 Vout
 
 =
-0.6 × (1+RFB1/RFB2)
+Vref × (1+RFB1/RFB2)
+
+Vref = 0.6V
+</pre>
+
+<h3>已知</h3>
+
+<pre>
+Vout = 3.3V
 
 RFB2 = 10kΩ
+</pre>
+
+<h3>計算</h3>
+
+<pre>
+3.3
+
+=
+0.6 × (1 + RFB1/10000)
 
 RFB1
 
 =
-10kΩ
+45000Ω
 
+=
+45kΩ
+</pre>
+
+<p>
+實際可選：
+45.3kΩ
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Soft Start</h2>
+
+<p>
+Soft Start 用來控制啟動時輸出電壓上升速度，
+降低 Inrush Current，避免 Overshoot。
+</p>
+
+<h3>Excel公式</h3>
+
+<pre>
+=TSS_us/45
+</pre>
+
+<h3>範例</h3>
+
+<pre>
+Soft Start = 1ms
+
+Css
+
+=
+1000/45
+
+≈22nF
+</pre>
+
+</div>
+
+<div class="card">
+
+<h2>Input Capacitor 設計</h2>
+
+<pre>
+Icin(RMS)
+
+=
+Iout × √(D(1-D))
+</pre>
+
+<h3>最差情況</h3>
+
+<pre>
+D = 0.5
+
+Icin(RMS)
+
+≈ 0.5 × Iout
+</pre>
+
+<p>
+建議：
+</p>
+
+<ul>
+<li>10uF MLCC × 2</li>
+<li>4.7uF MLCC × 2</li>
+<li>需要時增加 Bulk Capacitor</li>
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>1.8V 改 1.2V 如何修改</h2>
+
+<pre>
+原設計
+
+RFB1 = 20kΩ
+RFB2 = 10kΩ
+
+Vout = 1.8V
+</pre>
+
+<h3>目標</h3>
+
+<pre>
+Vout = 1.2V
+</pre>
+
+<h3>計算</h3>
+
+<pre>
+1.2
+
+=
+0.6 × (1+RFB1/10000)
+
+RFB1 = 10kΩ
+</pre>
+
+<p>
+修改：
+</p>
+
+<pre>
+RFB1
+
+20kΩ
+
+↓
+
+10kΩ
+</pre>
+
+</div>
+
+<div class="card">
+
+<h2>面試最常問問題</h2>
+
+<h3>Q1：Buck為什麼可以降壓？</h3>
+
+<pre>
+Vout = D × Vin
+
+利用Duty控制平均輸出電壓
+</pre>
+
+<h3>Q2：電感用途？</h3>
+
+<pre>
+儲能
+
+限制di/dt
+
+降低Ripple
+</pre>
+
+<h3>Q3：Bootstrap用途？</h3>
+
+<pre>
+提供High Side MOS Gate Drive
+
+VBST-SW ≈ 5V
+</pre>
+
+<h3>Q4：什麼是COT？</h3>
+
+<pre>
+Constant On Time
+
+固定Ton控制
+
+Fast Transient Response
+</pre>
+
+<h3>Q5：改1.2V最先改哪個零件？</h3>
+
+<pre>
+Feedback Divider
+
+RFB1 / RFB2
+</pre>
+
+<h3>Q6：OCP怎麼調？</h3>
+
+<pre>
+透過 CS Pin
+
+改變 RCS
+
+RCS越大 → OCP越小
+
+RCS越小 → OCP越大
 </pre>
 
 </div>
