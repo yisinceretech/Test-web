@@ -1,1 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
+<title>TDA38806 Buck Converter Study</title>
+
+<style>
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background:#f4f6f8;
+    margin:0;
+    padding:30px;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+}
+
+h1{
+    color:#005BAC;
+    border-bottom:4px solid #005BAC;
+    padding-bottom:10px;
+}
+
+h2{
+    background:#EAF2FF;
+    padding:10px;
+    border-left:5px solid #005BAC;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    margin-top:20px;
+    border-radius:10px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.1);
+}
+
+img{
+    width:100%;
+    border:1px solid #ddd;
+    border-radius:5px;
+}
+
+pre{
+    background:#f5f5f5;
+    padding:15px;
+    border-radius:5px;
+    overflow:auto;
+}
+
+a{
+    color:#005BAC;
+    text-decoration:none;
+}
+
+a:hover{
+    text-decoration:underline;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ccc;
+    padding:10px;
+}
+
+th{
+    background:#f0f0f0;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>
+Buck Converter Study Note - Infineon TDA38806
+</h1>
+
+<div class="card">
+<h2>參考資料</h2>
+
+<ul>
+
+<li>
+TDA38806 Datasheet
+<br>
+<a href="https://www.infineon.com/assets/row/public/documents/24/49/infineon-tda38806-datasheet-en.pdf"
+target="_blank">
+Infineon TDA38806 Datasheet
+</a>
+</li>
+
+<br>
+
+<li>
+Buck Converter 教學影片
+<br>
+://www.youtube.com/watch?v=vwJYIorz_Aw"
+target="_blank">
+CH2NFU電力電子學實習 - YouTube
+</a>
+</li>
+
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>Buck Converter 基本公式</h2>
+
+<pre>
+Vout = D × Vin
+
+D = Vout / Vin
+</pre>
+
+例如:
+
+<pre>
+Vin = 12V
+Vout = 3.3V
+
+D = 3.3 / 12
+  = 0.275
+  = 27.5%
+</pre>
+
+</div>
+
+<div class="card">
+
+<h2>電感 Ripple Current</h2>
+
+<pre>
+ΔIL
+
+=
+(Vin − Vout) × D
+---------------------
+L × Fsw
+</pre>
+
+</div>
+
+<div class="card">
+
+<h2>Output Ripple Voltage</h2>
+
+<pre>
+ΔVout
+
+≈ ΔIL × ESR
+
++
+
+ΔIL
+-----------------
+8 × Fsw × Cout
+</pre>
+
+</div>
+
+<div class="card">
+
+<h2>Bootstrap (CBST) 工作原理</h2>
+
+<pre>
+
+Low Side ON：
+
+VCC
+ |
+>| Bootstrap Diode
+ |
+CBST
+ |
+SW = 0V
+
+CBST充電至約5V
+
+--------------------------------
+
+Steady State：
+
+VBST = 17V
+SW   = 12V
+
+VBST - SW ≈ 5V
+
+</pre>
+
+</div>
+
+<div class="card">
+
+<h2>TDA38806 Typical Application Diagram</h2>
+
+<img srct="TDA38806 Typical Application Diagram">
+
+<p>
+
+Figure 3 Typical Application Circuit
+
+</p>
+
+<table>
+
+<tr>
+<th>Pin</th>
+<th>功能</th>
+</tr>
+
+<tr>
+<td>VIN</td>
+<td>輸入電源</td>
+</tr>
+
+<tr>
+<td>BST</td>
+<td>Bootstrap Driver Supply</td>
+</tr>
+
+<tr>
+<td>SW</td>
+<td>Switch Node</td>
+</tr>
+
+<tr>
+<td>FB</td>
+<td>Feedback</td>
+</tr>
+
+<tr>
+<td>MODE</td>
+<td>Switching Frequency Selection</td>
+</tr>
+
+<tr>
+<td>CS</td>
+<td>OCP Current Limit Setting</td>
+</tr>
+
+<tr>
+<td>SS/REF</td>
+<td>Soft Start</td>
+</tr>
+
+</table>
+
+</div>
+
+<div class="card">
+
+<h2>TDA38806 1.8V Reference Design</h2>
+
+06_vout18.png"
+alt="TDA38806 1.8V Design">
+
+<h3>Reference Design Parameters</h3>
+
+<table>
+
+<tr>
+<th>項目</th>
+<th>數值</th>
+</tr>
+
+<tr>
+<td>Vin</td>
+<td>12V</td>
+</tr>
+
+<tr>
+<td>Vout</td>
+<td>1.8V</td>
+</tr>
+
+<tr>
+<td>L</td>
+<td>1uH</td>
+</tr>
+
+<tr>
+<td>RFB1</td>
+<td>20kΩ</td>
+</tr>
+
+<tr>
+<td>RFB2</td>
+<td>10kΩ</td>
+</tr>
+
+<tr>
+<td>Css</td>
+<td>22nF</td>
+</tr>
+
+<tr>
+<td>RCS</td>
+<td>4.7kΩ</td>
+</tr>
+
+<tr>
+<td>CBoot</td>
+<td>0.1uF</td>
+</tr>
+
+</table>
+
+</div>
+
+<div class="card">
+
+<h2>面試常見問題</h2>
+
+<h3>Q1. Buck Converter 為什麼能降壓?</h3>
+
+<pre>
+Vout = D × Vin
+利用Duty Cycle控制平均輸出電壓
+</pre>
+
+<h3>Q2. 電感電流怎麼算?</h3>
+
+<pre>
+Ipk = Iout + ΔIL/2
+
+Ivalley = Iout − ΔIL/2
+</pre>
+
+<h3>Q3. 輸出Ripple怎麼算?</h3>
+
+<pre>
+ΔVout
+
+≈ ΔIL × ESR
+
++
+
+ΔIL
+---------------
+8×Fsw×Cout
+</pre>
+
+<h3>Q4. 什麼是COT ?</h3>
+
+<pre>
+Constant On Time
+
+固定導通時間控制
+Fast Transient Response
+</pre>
+
+<h3>Q5. Vout由1.8V改成1.2V怎麼改?</h3>
+
+<pre>
+
+Vout
+
+=
+0.6 × (1+RFB1/RFB2)
+
+RFB2 = 10kΩ
+
+RFB1
+
+=
+10kΩ
+
+</pre>
+
+</div>
+
+</div>
+
+</body>
+</html>
